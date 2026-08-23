@@ -1,24 +1,10 @@
 (() => {
   const STORAGE_KEY = "what100.goals.v1";
+  const RESTORE_KEY = "what100.restore.v2026-08-23";
   const app = document.getElementById("app");
 
   function uid() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  }
-
-  function loadGoals() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function saveGoals(goals) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
   }
 
   function todayKey() {
@@ -39,17 +25,64 @@
     return `${yy}-${mm}-${dd}`;
   }
 
+  function markedDays(fromIso, toIso) {
+    const days = {};
+    let cursor = fromIso;
+    while (cursor <= toIso) {
+      days[cursor] = true;
+      cursor = addDays(cursor, 1);
+    }
+    return days;
+  }
+
+  function seedGoals() {
+    const startedOn = "2026-08-13";
+    const through = "2026-08-23";
+    const days = markedDays(startedOn, through);
+    const titles = ["6 min exercise", "walk 1hr", "workout"];
+
+    return titles.map((title) => ({
+      id: uid(),
+      title,
+      startedOn,
+      days: { ...days },
+    }));
+  }
+
+  function loadGoals() {
+    try {
+      if (localStorage.getItem(RESTORE_KEY) !== "1") {
+        const restored = seedGoals();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
+        localStorage.setItem(RESTORE_KEY, "1");
+        return restored;
+      }
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveGoals(goals) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+  }
+
   function doneCount(goal) {
     return Object.values(goal.days || {}).filter(Boolean).length;
   }
 
+  // Misses only "lock in" after an extra day, so you can backfill yesterday.
   function hasTwoConsecutiveMisses(goal) {
-    const today = todayKey();
+    const yesterday = addDays(todayKey(), -1);
     let missStreak = 0;
 
     for (let i = 0; i < 100; i += 1) {
       const date = addDays(goal.startedOn, i);
-      if (date >= today) break;
+      if (date >= yesterday) break;
 
       if (goal.days?.[date]) {
         missStreak = 0;
@@ -142,7 +175,7 @@
     app.innerHTML = `
       <section class="screen">
         <h1 class="brand">what<span>100</span></h1>
-        <p class="lede">One goal. One hundred days. Miss 2 days and it resets.</p>
+        <p class="lede">One goal. One hundred days. Miss 2 days (without backfill) and it resets.</p>
         ${resetNoticeHtml(resetTitles)}
         <form class="composer" id="new-goal-form">
           <input
@@ -232,7 +265,7 @@
         }
         <div class="calendar" id="calendar">${cells}</div>
         <div class="footer-actions">
-          <p class="hint">Tap a day to toggle. Miss 2 days in a row and this goal resets.</p>
+          <p class="hint">Tap a day to toggle. Miss 2 days in a row (you can still fill in yesterday) and this goal resets.</p>
         </div>
       </section>
     `;
