@@ -1,6 +1,6 @@
 (() => {
   const STORAGE_KEY = "what100.goals.v1";
-  const RESTORE_KEY = "what100.restore.v2026-08-23";
+  const RESTORE_KEY = "what100.restore.v2026-08-29";
   const app = document.getElementById("app");
 
   function uid() {
@@ -37,7 +37,7 @@
 
   function seedGoals() {
     const startedOn = "2026-08-13";
-    const through = "2026-08-23";
+    const through = "2026-08-29";
     const days = markedDays(startedOn, through);
     const titles = ["6 min exercise", "walk 1hr", "workout"];
 
@@ -76,7 +76,7 @@
   }
 
   // Misses only "lock in" after an extra day, so you can backfill yesterday.
-  function hasTwoConsecutiveMisses(goal) {
+  function hasFiveConsecutiveMisses(goal) {
     const yesterday = addDays(todayKey(), -1);
     let missStreak = 0;
 
@@ -88,7 +88,7 @@
         missStreak = 0;
       } else {
         missStreak += 1;
-        if (missStreak >= 2) return true;
+        if (missStreak >= 5) return true;
       }
     }
 
@@ -105,7 +105,7 @@
     let changed = false;
 
     for (const goal of goals) {
-      if (!hasTwoConsecutiveMisses(goal)) continue;
+      if (!hasFiveConsecutiveMisses(goal)) continue;
       resetGoal(goal);
       resetTitles.push(goal.title);
       changed = true;
@@ -128,8 +128,8 @@
     if (!resetTitles.length) return "";
     const label =
       resetTitles.length === 1
-        ? `"${escapeHtml(resetTitles[0])}" reset — missed 2 days.`
-        : `${resetTitles.length} goals reset — missed 2 days.`;
+        ? `"${escapeHtml(resetTitles[0])}" reset — missed 5 days.`
+        : `${resetTitles.length} goals reset — missed 5 days.`;
     return `<p class="notice" role="status">${label}</p>`;
   }
 
@@ -175,7 +175,7 @@
     app.innerHTML = `
       <section class="screen">
         <h1 class="brand">what<span>100</span></h1>
-        <p class="lede">One goal. One hundred days. Miss 2 days (without backfill) and it resets.</p>
+        <p class="lede">One goal. One hundred days. Miss 5 days (without backfill) and it resets.</p>
         ${resetNoticeHtml(resetTitles)}
         <form class="composer" id="new-goal-form">
           <input
@@ -260,12 +260,12 @@
         <p class="detail-sub">${count} of 100 days marked · started ${escapeHtml(goal.startedOn)}</p>
         ${
           thisReset
-            ? `<p class="notice" role="status">Reset — missed 2 days. Calendar starts over today.</p>`
+            ? `<p class="notice" role="status">Reset — missed 5 days. Calendar starts over today.</p>`
             : ""
         }
         <div class="calendar" id="calendar">${cells}</div>
         <div class="footer-actions">
-          <p class="hint">Tap a day to toggle. Miss 2 days in a row (you can still fill in yesterday) and this goal resets.</p>
+          <p class="hint">Tap a day to toggle. Miss 5 days in a row (you can still fill in yesterday) and this goal resets.</p>
         </div>
       </section>
     `;
@@ -292,7 +292,7 @@
       if (!current.days[date]) delete current.days[date];
 
       let toggledResets = [];
-      if (hasTwoConsecutiveMisses(current)) {
+      if (hasFiveConsecutiveMisses(current)) {
         resetGoal(current);
         toggledResets = [current.title];
       }
