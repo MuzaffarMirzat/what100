@@ -1,6 +1,6 @@
 (() => {
   const STORAGE_KEY = "what100.goals.v1";
-  const RESTORE_KEY = "what100.restore.v2026-08-23";
+  const RESTORE_KEY = "what100.restore.v2026-08-29";
   const app = document.getElementById("app");
 
   function uid() {
@@ -37,7 +37,7 @@
 
   function seedGoals() {
     const startedOn = "2026-08-13";
-    const through = "2026-08-23";
+    const through = "2026-08-29";
     const days = markedDays(startedOn, through);
     const titles = ["6 min exercise", "walk 1hr", "workout"];
 
