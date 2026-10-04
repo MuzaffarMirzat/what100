@@ -1,4 +1,4 @@
-const CACHE = "what100-v4";
+const CACHE = "what100-v5";
 const ASSETS = [
   "./",
   "./index.html",
