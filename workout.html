@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1419" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="what100 Workout" />
+  <meta name="description" content="60-day workout tracker — what100" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <title>Workout — what100</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a222d;
+      --surface2: #242f3d;
+      --text: #e8edf4;
+      --muted: #8b9aab;
+      --accent: #3dd68c;
+      --accent-dim: #2a9d63;
+      --warn: #f0a030;
+      --danger: #e85d5d;
+      --work: #e85d5d;
+      --rest: #3d8fd9;
+      --radius: 12px;
+      --tap: 48px;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: 18px; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      min-height: 100dvh;
+      padding-top: var(--safe-t);
+      padding-bottom: calc(64px + var(--safe-b));
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:active { opacity: 0.85; }
+    .top-nav {
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--surface2);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    #app { padding: 16px; max-width: 520px; margin: 0 auto; }
+    h1, h2, h3 { margin: 0 0 0.5rem; font-weight: 600; line-height: 1.25; }
+    h1 { font-size: 1.35rem; }
+    h2 { font-size: 1.15rem; margin-top: 1.25rem; }
+    .muted { color: var(--muted); font-size: 0.88rem; }
+    .hint { color: var(--muted); font-size: 0.85rem; margin: 4px 0 10px; }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border: 1px solid var(--surface2);
+    }
+    .progress-bar-wrap {
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0 16px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--tap);
+      min-width: var(--tap);
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--surface2);
+      color: var(--text);
+      touch-action: manipulation;
+    }
+    .btn-primary { background: var(--accent); color: #0a1210; width: 100%; }
+    .btn-primary:active { background: var(--accent-dim); }
+    .btn-ghost { background: transparent; border: 1px solid var(--surface2); }
+    .btn-sm { min-height: 40px; padding: 8px 14px; font-size: 0.9rem; }
+    .btn-huge {
+      min-height: 72px;
+      font-size: 1.35rem;
+      width: 100%;
+      margin: 8px 0;
+    }
+    .start-hero {
+      text-align: center;
+      padding: 48px 16px 32px;
+    }
+    .start-hero p { color: var(--muted); max-width: 320px; margin: 12px auto 24px; }
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .check-row:last-child { border-bottom: none; }
+    .check-btn {
+      flex-shrink: 0;
+      width: var(--tap);
+      height: var(--tap);
+      border-radius: 10px;
+      border: 2px solid var(--muted);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    .check-btn.done { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+    .ex-body { flex: 1; min-width: 0; }
+    .ex-title { font-weight: 600; }
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    .stepper button {
+      width: var(--tap);
+      height: var(--tap);
+      border-radius: 10px;
+      border: none;
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .stepper .val {
+      min-width: 56px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .set-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      flex-wrap: wrap;
+    }
+    .set-check {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 2px solid var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    .set-check.done { background: var(--accent-dim); border-color: var(--accent); }
+    .habits {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .habit-chip {
+      min-height: var(--tap);
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--surface2);
+      background: var(--surface2);
+      text-align: left;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .habit-chip.on { border-color: var(--accent); background: rgba(61, 214, 140, 0.15); }
+    .banner {
+      background: rgba(240, 160, 48, 0.15);
+      border: 1px solid var(--warn);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .banner-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      background: var(--surface);
+      border-top: 1px solid var(--surface2);
+      padding-bottom: var(--safe-b);
+      z-index: 100;
+    }
+    .tab-bar button {
+      flex: 1;
+      min-height: 56px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 4px;
+    }
+    .tab-bar button.active { color: var(--accent); }
+    .timer-display {
+      font-size: 4rem;
+      font-weight: 700;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      margin: 24px 0;
+    }
+    .timer-display.work { color: var(--work); }
+    .timer-display.rest { color: var(--rest); }
+    .timer-round { text-align: center; font-size: 1.2rem; color: var(--muted); }
+    .timer-panel { text-align: center; }
+    .grid-60 {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 4px;
+      margin: 12px 0;
+    }
+    .grid-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      font-size: 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      color: var(--muted);
+    }
+    .grid-cell.done { background: var(--accent-dim); color: #fff; }
+    .grid-cell.missed { background: var(--danger); color: #fff; opacity: 0.7; }
+    .grid-cell.today { outline: 2px solid var(--accent); }
+    .chart-svg { width: 100%; height: 120px; display: block; }
+    textarea, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      min-height: var(--tap);
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--surface2);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    label { display: block; margin: 8px 0 4px; font-size: 0.9rem; color: var(--muted); }
+    .celebrate {
+      text-align: center;
+      padding: 24px;
+      animation: pop 0.4s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .pick-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      margin: 4px 8px 4px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--surface2);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .pick-toggle.on { border-color: var(--accent); background: rgba(61,214,140,0.12); }
+    .level-btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    .level-btns button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--surface2);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .level-btns button.on { border-color: var(--accent); color: var(--accent); }
+    .rules-list { margin: 0; padding-left: 1.2rem; }
+    .rules-list li { margin-bottom: 8px; }
+    .hidden { display: none !important; }
+    select {
+      min-height: var(--tap);
+      padding: 10px;
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--surface2);
+      font-size: 1rem;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav"><a href="./index.html">← Goals</a></nav>
+  <div id="app"></div>
+  <nav class="tab-bar" id="tab-bar" aria-label="Main"></nav>
+  <input type="file" id="import-file" accept="application/json" class="hidden" aria-hidden="true" />
+  <script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "what100.workout.v1";
+  const CHECKIN_DAYS = [1, 15, 30, 45, 60];
+  const PUSH_LEVELS = ["wall", "knees", "standard", "feet raised"];
+  const WED_POOL = [
+    { id: "goblet_squat", label: "Goblet squats" },
+    { id: "pushups", label: "Push-ups" },
+    { id: "db_row", label: "DB rows" },
+    { id: "ohp", label: "Overhead press" },
+    { id: "lunges", label: "Lunges" },
+    { id: "chest_press", label: "Chest press" },
+    { id: "step_ups", label: "Step-ups" },
+  ];
+  const WEIGHTED = {
+    goblet_squat: { inc: 10, kind: "lower" },
+    db_row: { inc: 5, kind: "upper" },
+    kb_farmer: { inc: 10, kind: "lower" },
+    lunges: { inc: 10, kind: "lower" },
+    ohp: { inc: 5, kind: "upper" },
+    chest_press: { inc: 5, kind: "upper" },
+    step_ups: { inc: 10, kind: "lower" },
+  };
+
+  let timerState = {
+    running: false,
+    mode: null,
+    phase: "idle",
+    remaining: 0,
+    round: 1,
+    totalRounds: 1,
+    workSec: 20,
+    restSec: 40,
+    holdTarget: 20,
+    intervalId: null,
+    countdownId: null,
+    wakeLock: null,
+  };
+
+  let audioCtx = null;
+
+  function defaultState() {
+    return {
+      startDate: null,
+      unit: "lb",
+      sound: true,
+      tab: "today",
+      exerciseMeta: {},
+      progressionOffers: {},
+      wedDefaultPicks: ["goblet_squat", "pushups", "db_row", "ohp", "lunges"],
+      days: {},
+      checkIns: {},
+      bodyWeightLog: [],
+      exerciseWeightLog: {},
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      return { ...defaultState(), ...JSON.parse(raw) };
+    } catch {
+      return defaultState();
+    }
+  }
+
+  let state = loadState();
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function localYMD(d) {
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function parseYMD(s) {
+    const p = s.split("-").map(Number);
+    return new Date(p[0], p[1] - 1, p[2]);
+  }
+
+  function addDays(ymd, n) {
+    const d = parseYMD(ymd);
+    d.setDate(d.getDate() + n);
+    return localYMD(d);
+  }
+
+  function daysDiff(fromYmd, toYmd) {
+    const a = parseYMD(fromYmd);
+    const b = parseYMD(toYmd);
+    return Math.round((b - a) / 86400000);
+  }
+
+  function programDayFor(ymd) {
+    if (!state.startDate) return null;
+    const d = daysDiff(state.startDate, ymd);
+    if (d < 0) return null;
+    if (d >= 60) return 60;
+    return d + 1;
+  }
+
+  function dateForProgramDay(n) {
+    return addDays(state.startDate, n - 1);
+  }
+
+  function getPhase(pd) {
+    if (pd <= 14) return { key: "foundation", name: "Foundation", sets: 3, repMin: 10, repMax: 12, sprintRounds: 6, sprintRest: 40, hiitRounds: 2, hiitHard: 240, hiitEasy: 180, weeklyCardio: 90, plankTarget: 20 };
+    if (pd <= 28) return { key: "build", name: "Build", sets: 3, repMin: 12, repMax: 12, sprintRounds: 8, sprintRest: 30, hiitRounds: 3, hiitHard: 240, hiitEasy: 180, weeklyCardio: 120, plankTarget: 30 };
+    if (pd <= 42) return { key: "push", name: "Push", sets: 4, repMin: 8, repMax: 10, sprintRounds: 8, sprintRest: 20, hiitRounds: 4, hiitHard: 240, hiitEasy: 180, weeklyCardio: 150, plankTarget: 40 };
+    if (pd <= 56) return { key: "peak", name: "Peak", sets: 4, repMin: 8, repMax: 10, sprintRounds: 10, sprintRest: 20, hiitRounds: 4, hiitHard: 240, hiitEasy: 180, weeklyCardio: 165, plankTarget: 50, finisher: true };
+    return { key: "finish", name: "Finish", sets: 2, repMin: 8, repMax: 10, sprintRounds: 0, sprintRest: 40, hiitRounds: 0, hiitHard: 240, hiitEasy: 180, weeklyCardio: 90, plankTarget: 60, light: true };
+  }
+
+  function weekdayMon0(ymd) {
+    const d = parseYMD(ymd).getDay();
+    return d === 0 ? 6 : d - 1;
+  }
+
+  function ensureMeta(exId) {
+    if (!state.exerciseMeta[exId]) {
+      state.exerciseMeta[exId] = {
+        weight: 25,
+        pushLevel: 0,
+        lastSets: [],
+        lastDate: null,
+      };
+    }
+    return state.exerciseMeta[exId];
+  }
+
+  function displayWeight(lb) {
+    if (state.unit === "kg") return Math.round(lb * 0.453592 * 10) / 10;
+    return lb;
+  }
+
+  function unitLabel() {
+    return state.unit === "kg" ? "kg" : "lb";
+  }
+
+  function ensureDay(ymd) {
+    if (!state.days[ymd]) {
+      state.days[ymd] = {
+        completed: false,
+        skipped: false,
+        miniWorkout: false,
+        habits: { steps: false, protein: false, sleep: false, water: false },
+        items: {},
+        playNote: "",
+        wedPicks: state.wedDefaultPicks.slice(),
+        easyCardioMin: 0,
+        celebrationShown: false,
+      };
+    }
+    return state.days[ymd];
+  }
+
+  function getItem(day, itemId) {
+    const d = ensureDay(day);
+    if (!d.items[itemId]) {
+      d.items[itemId] = { checked: false, sets: [], minutes: 0, level: null };
+    }
+    return d.items[itemId];
+  }
+
+  function weightStep(exId) {
+    const cfg = WEIGHTED[exId];
+    return cfg && cfg.kind === "lower" ? 10 : 5;
+  }
+
+  function initWeightedSets(day, exId, phase, storageId) {
+    const sid = storageId || exId;
+    const item = getItem(day, sid);
+    const meta = ensureMeta(exId);
+    if (item.sets.length === 0) {
+      const n = phase.sets;
+      const defReps = phase.repMax;
+      for (let i = 0; i < n; i++) {
+        const prev = meta.lastSets[i];
+        item.sets.push({
+          weight: meta.weight,
+          reps: prev != null ? prev : defReps,
+          done: false,
+        });
+      }
+    }
+    return item;
+  }
+
+  function initRepSets(day, exId, phase, storageId) {
+    const sid = storageId || exId;
+    const item = getItem(day, sid);
+    const meta = ensureMeta(exId);
+    if (item.sets.length === 0) {
+      const n = phase.sets;
+      const defReps = phase.repMax;
+      for (let i = 0; i < n; i++) {
+        const prev = meta.lastSets[i];
+        item.sets.push({ reps: prev != null ? prev : defReps, done: false });
+      }
+    }
+    return item;
+  }
+
+  function renderRepSets(exId, day, phase, storageId) {
+    const sid = storageId || exId;
+    const item = initRepSets(day, exId, phase, sid);
+    const m = ensureMeta(exId);
+    let html = '<div class="hint">' + (m.lastSets.length ? "Last time: " + m.lastSets.join(", ") + " reps" : "") + "</div>";
+    item.sets.forEach((set, i) => {
+      html +=
+        '<div class="set-row"><button type="button" class="set-check' +
+        (set.done ? " done" : "") +
+        '" data-action="set-toggle" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '">' +
+        (set.done ? "✓" : "") +
+        '</button><span>Set ' +
+        (i + 1) +
+        '</span><div class="stepper"><button type="button" data-action="set-reps" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '" data-delta="-1">−</button><span class="val">' +
+        set.reps +
+        ' reps</span><button type="button" data-action="set-reps" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '" data-delta="1">+</button></div></div>';
+    });
+    return html;
+  }
+
+  function lastTimeLine(exId) {
+    const m = state.exerciseMeta[exId];
+    if (!m || !m.lastSets || !m.lastSets.length) return "";
+    const w = displayWeight(m.weight);
+    return "Last time: " + w + " " + unitLabel() + " × " + m.lastSets.join(", ");
+  }
+
+  function maybeOfferProgression(exId) {
+    const m = ensureMeta(exId);
+    const cfg = WEIGHTED[exId];
+    if (!cfg || !m.lastSets.length) return;
+    const phase = getPhase(programDayFor(m.lastDate) || 1);
+    const top = phase.repMax;
+    if (m.lastSets.every((r) => r >= top)) {
+      const offer = m.weight + cfg.inc;
+      if (state.progressionOffers[exId] !== offer) {
+        state.progressionOffers[exId] = offer;
+      }
+    }
+  }
+
+  function commitExerciseLog(exId, item) {
+    const m = ensureMeta(exId);
+    m.lastSets = item.sets.filter((s) => s.done).map((s) => s.reps);
+    if (!m.lastSets.length) return;
+    m.lastDate = state._activeYmd || localYMD();
+    if (WEIGHTED[exId]) {
+      m.weight = item.sets[0].weight;
+      if (!state.exerciseWeightLog[exId]) state.exerciseWeightLog[exId] = [];
+      state.exerciseWeightLog[exId].push({ date: m.lastDate, weight: m.weight });
+      maybeOfferProgression(exId);
+    }
+  }
+
+  function weekStartYmd(ymd) {
+    const d = parseYMD(ymd);
+    const mon = weekdayMon0(ymd);
+    d.setDate(d.getDate() - mon);
+    return localYMD(d);
+  }
+
+  function weeklyEasyCardioMinutes(ymd) {
+    const ws = weekStartYmd(ymd);
+    let total = 0;
+    for (let i = 0; i < 7; i++) {
+      const key = addDays(ws, i);
+      const day = state.days[key];
+      if (day) total += day.easyCardioMin || 0;
+    }
+    return total;
+  }
+
+  function streakCount() {
+    if (!state.startDate) return 0;
+    const today = localYMD();
+    let streak = 0;
+    let ymd = today;
+    while (true) {
+      const pd = programDayFor(ymd);
+      if (pd == null || pd < 1) break;
+      const day = state.days[ymd];
+      if (day && (day.completed || day.skipped || day.miniWorkout)) {
+        streak++;
+        ymd = addDays(ymd, -1);
+      } else if (ymd === today) {
+        ymd = addDays(ymd, -1);
+      } else break;
+    }
+    return streak;
+  }
+
+  function beep() {
+    if (!state.sound) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.15);
+    } catch (_) {}
+    try { navigator.vibrate && navigator.vibrate(120); } catch (_) {}
+  }
+
+  async function requestWakeLock() {
+    try {
+      if ("wakeLock" in navigator && !timerState.wakeLock) {
+        timerState.wakeLock = await navigator.wakeLock.request("screen");
+      }
+    } catch (_) {}
+  }
+
+  function releaseWakeLock() {
+    try {
+      if (timerState.wakeLock) {
+        timerState.wakeLock.release();
+        timerState.wakeLock = null;
+      }
+    } catch (_) {}
+  }
+
+  function stopTimer() {
+    if (timerState.intervalId) clearInterval(timerState.intervalId);
+    if (timerState.countdownId) clearInterval(timerState.countdownId);
+    timerState.intervalId = null;
+    timerState.countdownId = null;
+    timerState.running = false;
+    timerState.phase = "idle";
+    releaseWakeLock();
+    render();
+  }
+
+  function startCountdownThenRun(fn) {
+    let c = 3;
+    timerState.phase = "countdown";
+    timerState.remaining = c;
+    render();
+    beep();
+    timerState.countdownId = setInterval(() => {
+      c--;
+      timerState.remaining = c;
+      if (c <= 0) {
+        clearInterval(timerState.countdownId);
+        timerState.countdownId = null;
+        fn();
+      } else beep();
+      render();
+    }, 1000);
+  }
+
+  function timerTick() {
+    timerState.remaining--;
+    if (timerState.remaining <= 0) {
+      beep();
+      if (timerState.mode === "sprint") {
+        if (timerState.phase === "work") {
+          timerState.phase = "rest";
+          timerState.remaining = timerState.restSec;
+        } else {
+          if (timerState.round >= timerState.totalRounds) {
+            stopTimer();
+            return;
+          }
+          timerState.round++;
+          timerState.phase = "work";
+          timerState.remaining = timerState.workSec;
+        }
+      } else if (timerState.mode === "hiit") {
+        if (timerState.phase === "work") {
+          timerState.phase = "rest";
+          timerState.remaining = timerState.restSec;
+        } else {
+          if (timerState.round >= timerState.totalRounds) {
+            stopTimer();
+            return;
+          }
+          timerState.round++;
+          timerState.phase = "work";
+          timerState.remaining = timerState.workSec;
+        }
+      } else if (timerState.mode === "hold" || timerState.mode === "meditation" || timerState.mode === "rest") {
+        stopTimer();
+        return;
+      }
+    }
+    render();
+  }
+
+  function runTimerInterval() {
+    requestWakeLock();
+    timerState.running = true;
+    timerState.intervalId = setInterval(timerTick, 1000);
+  }
+
+  function loadTimerForToday() {
+    const ymd = localYMD();
+    const pd = programDayFor(ymd);
+    if (!pd) return;
+    const phase = getPhase(pd);
+    const wd = weekdayMon0(ymd);
+    if (wd === 1 && !phase.light) {
+      timerState.mode = "sprint";
+      timerState.workSec = 20;
+      timerState.restSec = phase.sprintRest;
+      timerState.totalRounds = phase.sprintRounds;
+    } else if (wd === 3 && !phase.light) {
+      timerState.mode = "hiit";
+      timerState.workSec = phase.hiitHard;
+      timerState.restSec = phase.hiitEasy;
+      timerState.totalRounds = phase.hiitRounds;
+    }
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderWeightedSets(exId, day, phase, storageId) {
+    const sid = storageId || exId;
+    const item = initWeightedSets(day, exId, phase, sid);
+    let html = '<div class="hint">' + esc(lastTimeLine(exId)) + "</div>";
+    item.sets.forEach((set, i) => {
+      html +=
+        '<div class="set-row" data-set-row="' +
+        exId +
+        '" data-set-idx="' +
+        i +
+        '">' +
+        '<button type="button" class="set-check' +
+        (set.done ? " done" : "") +
+        '" data-action="set-toggle" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '" aria-label="Log set ' +
+        (i + 1) +
+        '">' +
+        (set.done ? "✓" : "") +
+        "</button>" +
+        '<span>Set ' +
+        (i + 1) +
+        "</span>" +
+        '<div class="stepper">' +
+        '<button type="button" data-action="set-weight" data-ex="' +
+        sid +
+        '" data-meta="' +
+        exId +
+        '" data-idx="' +
+        i +
+        '" data-delta="-' +
+        weightStep(exId) +
+        '">−</button>' +
+        '<span class="val">' +
+        displayWeight(set.weight) +
+        " " +
+        unitLabel() +
+        "</span>" +
+        '<button type="button" data-action="set-weight" data-ex="' +
+        sid +
+        '" data-meta="' +
+        exId +
+        '" data-idx="' +
+        i +
+        '" data-delta="' +
+        weightStep(exId) +
+        '">+</button>' +
+        "</div>" +
+        '<div class="stepper">' +
+        '<button type="button" data-action="set-reps" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '" data-delta="-1">−</button>' +
+        '<span class="val">' +
+        set.reps +
+        " reps</span>" +
+        '<button type="button" data-action="set-reps" data-ex="' +
+        sid +
+        '" data-idx="' +
+        i +
+        '" data-delta="1">+</button>' +
+        "</div></div>";
+    });
+    return html;
+  }
+
+  function renderCheckItem(num, title, hint, day, itemId, extra) {
+    const item = getItem(day, itemId);
+    return (
+      '<div class="check-row">' +
+      '<button type="button" class="check-btn' +
+      (item.checked ? " done" : "") +
+      '" data-action="item-check" data-day="' +
+      day +
+      '" data-id="' +
+      itemId +
+      '" aria-label="Toggle">' +
+      (item.checked ? "✓" : "") +
+      "</button>" +
+      '<div class="ex-body"><div class="ex-title">' +
+      num +
+      ". " +
+      esc(title) +
+      "</div>" +
+      (hint ? '<div class="hint">' + esc(hint) + "</div>" : "") +
+      (extra || "") +
+      "</div></div>"
+    );
+  }
+
+  function renderProgressionBanners() {
+    let h = "";
+    Object.keys(state.progressionOffers).forEach((exId) => {
+      const offer = state.progressionOffers[exId];
+      const names = {
+        goblet_squat: "Goblet squats",
+        db_row: "Rows",
+        kb_farmer: "KB / farmer",
+        lunges: "Lunges",
+        ohp: "Overhead press",
+        chest_press: "Chest press",
+        step_ups: "Step-ups",
+      };
+      h +=
+        '<div class="banner" data-ex="' +
+        exId +
+        '"><strong>' +
+        esc(names[exId] || exId) +
+        "</strong>: Go up to " +
+        displayWeight(offer) +
+        " " +
+        unitLabel() +
+        "?" +
+        '<div class="banner-actions">' +
+        '<button type="button" class="btn btn-sm btn-primary" data-action="prog-accept" data-ex="' +
+        exId +
+        '">Yes, increase</button>' +
+        '<button type="button" class="btn btn-sm btn-ghost" data-action="prog-decline" data-ex="' +
+        exId +
+        '">Keep same</button>' +
+        "</div></div>";
+    });
+    return h;
+  }
+
+  function renderTodayWorkout(ymd, pd, phase) {
+    const wd = weekdayMon0(ymd);
+    const dayRec = ensureDay(ymd);
+    state._activeYmd = ymd;
+    let html = "";
+    const finishLight = phase.light;
+
+    if (wd === 6) {
+      html += renderCheckItem(1, "Gentle yoga / stretch 20–30 min", "Move slowly; no forcing stretches.", ymd, "sun_yoga");
+      html += renderCheckItem(
+        2,
+        "Mindfulness meditation 15–20 min",
+        "Sit comfortably; return to breath when mind wanders.",
+        ymd,
+        "sun_meditation",
+        '<button type="button" class="btn btn-sm" data-action="timer-meditation">Start meditation timer</button>'
+      );
+    } else if (wd === 0) {
+      html += renderCheckItem(1, "General warm-up 5 min", "Easy movement to raise heart rate.", ymd, "mon_warm1");
+      html += renderCheckItem(2, "Dynamic warm-up 5 min", "Arm circles, leg swings, high knees, lateral lunges.", ymd, "mon_warm2");
+      html += renderCheckItem(
+        3,
+        "Goblet squats",
+        phase.sets + "×" + phase.repMin + "–" + phase.repMax + ". Chest tall, elbows inside knees.",
+        ymd,
+        "goblet_squat",
+        renderWeightedSets("goblet_squat", ymd, phase)
+      );
+      const pu = getItem(ymd, "pushups");
+      const meta = ensureMeta("pushups");
+      let lvl = '<div class="level-btns">';
+      PUSH_LEVELS.forEach((lab, i) => {
+        lvl +=
+          '<button type="button" class="' +
+          ((pu.level != null ? pu.level : meta.pushLevel) === i ? "on" : "") +
+          '" data-action="push-level" data-day="' +
+          ymd +
+          '" data-lvl="' +
+          i +
+          '">' +
+          lab +
+          "</button>";
+      });
+      lvl += "</div>";
+      html += renderCheckItem(4, "Push-ups", "Choose level; full range, core tight.", ymd, "pushups", lvl + renderRepSets("pushups", ymd, phase));
+      html += renderCheckItem(
+        5,
+        "Single-arm dumbbell rows",
+        "Flat back; pull elbow to hip.",
+        ymd,
+        "db_row",
+        renderWeightedSets("db_row", ymd, phase)
+      );
+      const kb = getItem(ymd, "kb_farmer");
+      html += renderCheckItem(
+        6,
+        "Kettlebell swings or farmer's walks",
+        "3×30 sec work. Hip hinge on swings; tall posture on carries.",
+        ymd,
+        "kb_farmer",
+        renderWeightedSets("kb_farmer", ymd, { sets: 3, repMax: 30, repMin: 30 }) +
+          '<button type="button" class="btn btn-sm" data-action="timer-hold" data-sec="30">30s interval timer</button>'
+      );
+      const plankT = phase.plankTarget;
+      html += renderCheckItem(
+        7,
+        "Plank hold",
+        "Target " + plankT + "s. Glutes on, neck neutral.",
+        ymd,
+        "plank",
+        '<button type="button" class="btn btn-sm" data-action="timer-hold" data-sec="' + plankT + '">Start ' + plankT + 's timer</button>'
+      );
+      html += renderCheckItem(8, "Stability 5–10 min", "Single-leg balance, bird dog, single-leg RDL, toe touch, plank shoulder taps, dead bugs.", ymd, "mon_stability");
+      html += renderCheckItem(9, "Easy cardio 25 min", "60–70% effort — you can still talk.", ymd, "easy_cardio_mon", renderEasyCardioStepper(ymd, "easy_cardio_mon", 25));
+      if (phase.finisher) {
+        html += renderCheckItem(10, "Finisher circuit 5 min", "10 KB swings, 10 push-ups, 10 squats — repeat.", ymd, "peak_finisher");
+      }
+    } else if (wd === 1) {
+      if (finishLight) {
+        html += renderCheckItem(1, "Easy walk", "Finish phase — keep it light.", ymd, "finish_walk", renderEasyCardioStepper(ymd, "finish_walk", 30));
+      } else {
+        html += renderCheckItem(
+          1,
+          "Sprint rounds",
+          phase.sprintRounds + "×20s hard + " + phase.sprintRest + "s rest. Run, bike, or bodyweight.",
+          ymd,
+          "tue_sprints",
+          '<button type="button" class="btn btn-primary btn-sm" data-action="timer-sprint">Open sprint timer</button>'
+        );
+        html += renderCheckItem(2, "Easy cardio (rest of ~60 min)", "Stay at 60–70%; conversation pace.", ymd, "tue_easy", renderEasyCardioStepper(ymd, "tue_easy", 40));
+      }
+    } else if (wd === 2) {
+      html += renderCheckItem(1, "Dynamic stretching 10 min", "Leg swings, hip circles, arm reaches.", ymd, "wed_dynamic");
+      let picks = '<div class="hint">Tap to add/remove (4–5 moves, ~30 min):</div>';
+      WED_POOL.forEach((p) => {
+        const on = dayRec.wedPicks.includes(p.id);
+        picks +=
+          '<span class="pick-toggle' +
+          (on ? " on" : "") +
+          '" data-action="wed-toggle" data-day="' +
+          ymd +
+          '" data-id="' +
+          p.id +
+          '">' +
+          esc(p.label) +
+          "</span>";
+      });
+      html += renderCheckItem(2, "Strength block", "Your selected moves below.", ymd, "wed_strength_block", picks);
+      dayRec.wedPicks.forEach((exId, idx) => {
+        const label = (WED_POOL.find((p) => p.id === exId) || {}).label || exId;
+        const itemId = "wed_" + exId;
+        const extra = exId === "pushups" ? renderRepSets(exId, ymd, phase, itemId) : renderWeightedSets(exId, ymd, phase, itemId);
+        html += renderCheckItem("2." + (idx + 1), label, "", ymd, itemId, extra);
+      });
+      html += renderCheckItem(3, "Yoga 15 min", "Cat-cow, cobbler, tree, cobra.", ymd, "wed_yoga");
+      html += renderCheckItem(4, "Static stretching 5 min", "Hold 30s per major muscle.", ymd, "wed_static");
+    } else if (wd === 3) {
+      if (finishLight) {
+        html += renderCheckItem(1, "Easy walk + mobility", "Skip 4×4 this week; easy movement only.", ymd, "finish_walk_thu", renderEasyCardioStepper(ymd, "finish_walk_thu", 30));
+      } else {
+        html += renderCheckItem(1, "Warm-up 10 min", "Gradually build effort.", ymd, "thu_warm");
+        html +=
+          renderCheckItem(
+            2,
+            "Norwegian 4×4 intervals",
+            phase.hiitRounds + " rounds: 4 min Hard cardio + 3 min easy. Hard = uncomfortable but controlled; last round as strong as first. Bike, rower, incline, or stairs. Finish ≥4h before bed.",
+            ymd,
+            "thu_hiit",
+            '<button type="button" class="btn btn-primary btn-sm" data-action="timer-hiit">Start 4×4 timer</button>'
+          ) +
+          '<div class="hint">Label hard efforts as “Hard cardio” — strong but controlled.</div>';
+        html += renderCheckItem(3, "Cooldown 5 min", "Easy spin or walk down.", ymd, "thu_cool");
+      }
+    } else if (wd === 4) {
+      html += renderCheckItem(1, "General warm-up 5 min", "", ymd, "fri_warm1");
+      html += renderCheckItem(2, "Dynamic warm-up 5 min", "", ymd, "fri_warm2");
+      html += renderCheckItem(3, "Lunges", "Step long; front knee over ankle.", ymd, "lunges", renderWeightedSets("lunges", ymd, phase));
+      html += renderCheckItem(4, "Overhead press", "Ribs down; bar/path over mid-foot.", ymd, "ohp", renderWeightedSets("ohp", ymd, phase));
+      html += renderCheckItem(5, "Dumbbell chest press", "Shoulder blades pinched.", ymd, "chest_press", renderWeightedSets("chest_press", ymd, phase));
+      html += renderCheckItem(
+        6,
+        "Side plank each side",
+        "Hips high; hold target " + phase.plankTarget / 2 + "s per side.",
+        ymd,
+        "side_plank",
+        '<button type="button" class="btn btn-sm" data-action="timer-hold" data-sec="' + Math.round(phase.plankTarget / 2) + '">Side timer</button>'
+      );
+      html += renderCheckItem(7, "Step-ups each leg", "Full foot on box; drive through heel.", ymd, "step_ups", renderWeightedSets("step_ups", ymd, phase));
+      html += renderCheckItem(8, "Stability 5–10 min", "Same as Monday list.", ymd, "fri_stability");
+    } else if (wd === 5) {
+      const item = getItem(ymd, "sat_play");
+      html += renderCheckItem(1, "Play", "Sport, hike, dance — anything fun and active.", ymd, "sat_play");
+      html +=
+        '<label for="play-note">What did you do?</label><textarea id="play-note" rows="3" data-action="play-note" data-day="' +
+        ymd +
+        '" placeholder="Pick-up soccer, long walk with kids…">' +
+        esc(dayRec.playNote || "") +
+        "</textarea>";
+    }
+
+    return html;
+  }
+
+  function renderEasyCardioStepper(ymd, itemId, suggest) {
+    const day = ensureDay(ymd);
+    const item = getItem(ymd, itemId);
+    const min = item.minutes || day.easyCardioMin || 0;
+    return (
+      '<div class="stepper">' +
+      '<button type="button" data-action="cardio-min" data-day="' +
+      ymd +
+      '" data-id="' +
+      itemId +
+      '" data-delta="-5">−5</button>' +
+      '<span class="val">' +
+      min +
+      " min logged</span>" +
+      '<button type="button" data-action="cardio-min" data-day="' +
+      ymd +
+      '" data-id="' +
+      itemId +
+      '" data-delta="5">+5</button>' +
+      "</div>" +
+      (suggest ? '<div class="hint">Suggested ~' + suggest + " min.</div>" : "")
+    );
+  }
+
+  function renderFuelReminders() {
+    return (
+      '<div class="card"><h2>Fuel</h2>' +
+      '<p class="hint"><strong>Pre-workout:</strong> Light meal 1–2 h before — carbs + a little protein (toast + eggs, yogurt + fruit).</p>' +
+      '<p class="hint"><strong>Post-workout:</strong> Protein + carbs within ~60 minutes.</p></div>'
+    );
+  }
+
+  function renderHabits(ymd) {
+    const h = ensureDay(ymd).habits;
+    const labels = {
+      steps: "8–10k steps",
+      protein: "Protein goal",
+      sleep: "7–8 h sleep",
+      water: "Water",
+    };
+    let html = '<h2>Habits</h2><div class="habits">';
+    Object.keys(labels).forEach((k) => {
+      html +=
+        '<button type="button" class="habit-chip' +
+        (h[k] ? " on" : "") +
+        '" data-action="habit" data-day="' +
+        ymd +
+        '" data-key="' +
+        k +
+        '">' +
+        labels[k] +
+        (h[k] ? " ✓" : "") +
+        "</button>";
+    });
+    return html + "</div>";
+  }
+
+  function renderMissedBanner() {
+    const today = localYMD();
+    const yest = addDays(today, -1);
+    const pdY = programDayFor(yest);
+    if (!pdY) return "";
+    const day = state.days[yest];
+    if (day && (day.completed || day.skipped || day.miniWorkout)) return "";
+    return (
+      '<div class="card">' +
+      "<p>Yesterday's session (Day " +
+      pdY +
+      ") is still open.</p>" +
+      '<button type="button" class="btn btn-sm" data-action="catchup" data-day="' +
+      yest +
+      '">Do it today</button> ' +
+      '<button type="button" class="btn btn-sm btn-ghost" data-action="skip-day" data-day="' +
+      yest +
+      '">Skip it</button>' +
+      "</div>"
+    );
+  }
+
+  function renderCheckIn(ymd, pd) {
+    if (!CHECKIN_DAYS.includes(pd)) return "";
+    const key = String(pd);
+    const ci = state.checkIns[key] || {};
+    return (
+      '<div class="card"><h2>Check-in — Day ' +
+      pd +
+      "</h2>" +
+      '<p class="hint">Best in the morning, before eating.</p>' +
+      '<label>Body weight (' +
+      unitLabel() +
+      ')</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="weight" value="' +
+      esc(ci.weight || "") +
+      '" />' +
+      '<label>Waist (in or cm)</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="waist" value="' +
+      esc(ci.waist || "") +
+      '" />' +
+      '<label>Max push-ups</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="pushups" value="' +
+      esc(ci.pushups || "") +
+      '" />' +
+      '<label>Plank hold (sec)</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="plank" value="' +
+      esc(ci.plank || "") +
+      '" />' +
+      '<label>Goblet squat weight</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="goblet" value="' +
+      esc(ci.goblet || "") +
+      '" />' +
+      '<label>Photo note (URL or description)</label><input type="text" data-action="checkin" data-key="' +
+      key +
+      '" data-field="photo" value="' +
+      esc(ci.photo || "") +
+      '" />' +
+      "</div>"
+    );
+  }
+
+  function renderToday() {
+    if (!state.startDate) {
+      return (
+        '<div class="start-hero">' +
+        "<h1>60-day training plan</h1>" +
+        "<p>Strength, cardio, mobility, and recovery — adjusted by phase. Tap once to start; your Day 1 is today.</p>" +
+        '<button type="button" class="btn btn-primary btn-huge" data-action="start-program">Start my 60 days</button>' +
+        "</div>"
+      );
+    }
+    const ymd = state.viewDay || localYMD();
+    const pd = programDayFor(ymd);
+    if (!pd) {
+      return '<p class="muted">This date is outside your 60-day window.</p>';
+    }
+    const phase = getPhase(pd);
+    const dayRec = ensureDay(ymd);
+    let html = renderProgressionBanners();
+    html += renderMissedBanner();
+    html += '<h1>Day ' + pd + " of 60 — " + phase.name + "</h1>";
+    if (pd === 60) {
+      html += '<div class="banner"><strong>Retest day</strong> — repeat your check-in moves and compare to Day 1.</div>';
+    }
+    html += '<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:' + Math.min(100, (pd / 60) * 100) + '%"></div></div>';
+    if (state.viewDay && state.viewDay !== localYMD()) {
+      html += '<p class="muted">Viewing ' + ymd + ' <button type="button" class="btn btn-sm" data-action="view-today">Back to today</button></p>';
+    }
+    html += renderFuelReminders();
+    html += '<div class="card">' + renderTodayWorkout(ymd, pd, phase) + "</div>";
+    html += '<div class="card">' + renderHabits(ymd) + "</div>";
+    html += renderCheckIn(ymd, pd);
+
+    if (!dayRec.completed && !dayRec.skipped) {
+      html +=
+        '<button type="button" class="btn btn-primary" data-action="finish-workout" data-day="' +
+        ymd +
+        '">Finish workout</button>' +
+        '<p class="hint" style="margin-top:16px">No time today?</p>' +
+        '<button type="button" class="btn btn-ghost" data-action="mini-workout" data-day="' +
+        ymd +
+        '">11-min backup workout</button>' +
+        '<div class="hint">2 min warm-up, 8×20s hard / 20s rest, 4 min walk + stretch. Counts as done.</div>';
+    } else if (dayRec.completed && !dayRec.celebrationShown) {
+      dayRec.celebrationShown = true;
+      save();
+      html += '<div class="celebrate card"><h2>Nice work!</h2><p>Day ' + pd + " logged. Recovery counts too.</p></div>";
+    } else if (dayRec.miniWorkout) {
+      html += '<p class="muted">Today: 11-min backup completed.</p>';
+    } else if (dayRec.skipped) {
+      html += '<p class="muted">This day was skipped — program continues.</p>';
+    }
+    return html;
+  }
+
+  function renderTimerTab() {
+    loadTimerForToday();
+    const ts = timerState;
+    let modeLabel = "Timer";
+    if (ts.mode === "sprint") modeLabel = "Sprint " + ts.workSec + "s / " + ts.restSec + "s rest";
+    if (ts.mode === "hiit") modeLabel = "Hard cardio 4 min / easy 3 min";
+    if (ts.mode === "hold") modeLabel = "Hold timer";
+    if (ts.mode === "meditation") modeLabel = "Meditation";
+    if (ts.mode === "rest") modeLabel = "Rest";
+
+    let html = '<h1>Timer</h1><p class="muted">' + esc(modeLabel) + "</p>";
+    html += '<div class="timer-panel">';
+    if (ts.phase === "countdown") {
+      html += '<div class="timer-display">' + ts.remaining + "</div><p>Get ready…</p>";
+    } else if (ts.running || ts.phase !== "idle") {
+      const cls = ts.phase === "work" || ts.mode === "hold" ? "work" : "rest";
+      html +=
+        '<div class="timer-display ' +
+        cls +
+        '">' +
+        formatTime(ts.remaining) +
+        "</div>" +
+        '<div class="timer-round">Round ' +
+        ts.round +
+        " / " +
+        ts.totalRounds +
+        "</div>";
+      html += '<button type="button" class="btn btn-ghost" data-action="timer-stop">Stop</button>';
+    } else {
+      html += '<div class="timer-display">—</div>';
+      html += '<button type="button" class="btn btn-primary btn-huge" data-action="timer-start-main">Start</button>';
+    }
+    html += "</div>";
+    html += '<h2>More timers</h2>';
+    html += '<button type="button" class="btn" data-action="timer-hold" data-sec="20">Plank hold</button> ';
+    html += '<button type="button" class="btn" data-action="timer-rest" data-sec="60">Rest 60s</button> ';
+    html += '<button type="button" class="btn" data-action="timer-rest" data-sec="90">Rest 90s</button> ';
+    html += '<button type="button" class="btn" data-action="timer-meditation">Meditation 15 min</button>';
+    return html;
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m + ":" + String(s).padStart(2, "0");
+  }
+
+  function simpleLineChart(points, color) {
+    if (!points.length) return '<p class="muted">No data yet.</p>';
+    const w = 300;
+    const h = 100;
+    const xs = points.map((p, i) => i);
+    const ys = points.map((p) => p.v);
+    const minY = Math.min.apply(null, ys);
+    const maxY = Math.max.apply(null, ys);
+    const range = maxY - minY || 1;
+    const coords = points.map((p, i) => {
+      const x = (i / Math.max(1, points.length - 1)) * (w - 10) + 5;
+      const y = h - 5 - ((p.v - minY) / range) * (h - 10);
+      return x + "," + y;
+    });
+    return (
+      '<svg class="chart-svg" viewBox="0 0 ' +
+      w +
+      " " +
+      h +
+      '" preserveAspectRatio="none"><polyline fill="none" stroke="' +
+      color +
+      '" stroke-width="2" points="' +
+      coords.join(" ") +
+      '"/></svg>'
+    );
+  }
+
+  function renderProgress() {
+    const today = localYMD();
+    const pdToday = programDayFor(today) || 0;
+    let grid = '<div class="grid-60">';
+    for (let i = 1; i <= 60; i++) {
+      const d = dateForProgramDay(i);
+      const rec = state.days[d];
+      let cls = "";
+      if (i === pdToday) cls = "today";
+      else if (rec && (rec.completed || rec.miniWorkout)) cls = "done";
+      else if (rec && rec.skipped) cls = "done";
+      else if (daysDiff(d, today) < 0 && state.startDate) cls = "missed";
+      grid += '<div class="grid-cell ' + cls + '" title="Day ' + i + '">' + i + "</div>";
+    }
+    grid += "</div>";
+
+    const phase = getPhase(pdToday || 1);
+    const cardio = weeklyEasyCardioMinutes(today);
+    const bw = (state.bodyWeightLog || []).slice(-20);
+    const bwPoints = bw.map((p) => ({ v: parseFloat(p.value) || 0 }));
+
+    let html =
+      "<h1>Progress</h1>" +
+      "<p>Streak: <strong>" +
+      streakCount() +
+      "</strong> days</p>" +
+      grid +
+      '<div class="card"><h2>Easy cardio this week</h2><p>' +
+      cardio +
+      " / " +
+      phase.weeklyCardio +
+      " min target</p></div>" +
+      '<div class="card"><h2>Body weight</h2>' +
+      simpleLineChart(bwPoints, "#3dd68c") +
+      "</div>";
+
+    ["goblet_squat", "ohp", "db_row"].forEach((ex) => {
+      const log = (state.exerciseWeightLog[ex] || []).slice(-15);
+      html +=
+        '<div class="card"><h2>' +
+        ex.replace("_", " ") +
+        " weight</h2>" +
+        simpleLineChart(
+          log.map((p) => ({ v: displayWeight(p.weight) })),
+          "#3d8fd9"
+        ) +
+        "</div>";
+    });
+
+    html += "<h2>Check-ins</h2>";
+    CHECKIN_DAYS.forEach((d) => {
+      const ci = state.checkIns[String(d)] || {};
+      html +=
+        '<div class="card" style="display:inline-block;width:48%;vertical-align:top;margin:1%"><strong>Day ' +
+        d +
+        "</strong><br/><span class='muted'>" +
+        esc(ci.weight || "—") +
+        " wt · " +
+        esc(ci.pushups || "—") +
+        " push-ups</span></div>";
+    });
+    return html;
+  }
+
+  function renderMore() {
+    const rules = [
+      "Show up — a short session beats a zero.",
+      "Missing a day does not reset your 60 days.",
+      "Form first — drop weight or level if reps break down.",
+      "Sleep 7–8 hours; that's when you adapt.",
+      "Protein at each meal supports recovery.",
+      "Hydrate through the day, especially before cardio.",
+      "Sharp pain means stop; soreness is normal.",
+    ];
+    let rulesHtml = "<ol class='rules-list'>";
+    rules.forEach((r) => (rulesHtml += "<li>" + esc(r) + "</li>"));
+    rulesHtml += "</ol>";
+
+    let phasesHtml = "";
+    [1, 15, 29, 43, 57].forEach((start) => {
+      const ph = getPhase(start);
+      phasesHtml += "<p><strong>" + ph.name + "</strong> (days " + start + "+): " + ph.sets + " sets, " + ph.repMin + "–" + ph.repMax + " reps; sprints " + ph.sprintRounds + "×; 4×4 " + ph.hiitRounds + " rounds; ~" + ph.weeklyCardio + " min easy cardio/week.</p>";
+    });
+
+    return (
+      "<h1>More</h1>" +
+      '<div class="card"><h2>7 rules</h2>' +
+      rulesHtml +
+      "</div>" +
+      '<div class="card"><h2>Fuel</h2>' +
+      "<p>Pre: light carbs + protein 1–2 h before training.</p>" +
+      "<p>Post: protein + carbs within about 60 minutes.</p>" +
+      "<p>Daily: palm-sized protein each meal, 8–10k steps, steady water.</p></div>" +
+      '<div class="card"><h2>Full plan</h2>' +
+      "<p><strong>Mon:</strong> Strength A + easy cardio (~60 min)</p>" +
+      "<p><strong>Tue:</strong> Sprints + easy cardio</p>" +
+      "<p><strong>Wed:</strong> Strength picks + yoga + stretch</p>" +
+      "<p><strong>Thu:</strong> Norwegian 4×4</p>" +
+      "<p><strong>Fri:</strong> Strength B</p>" +
+      "<p><strong>Sat:</strong> Play + note</p>" +
+      "<p><strong>Sun:</strong> Active recovery + meditation</p>" +
+      phasesHtml +
+      "</div>" +
+      '<div class="card"><h2>Settings</h2>' +
+      '<label>Start date</label><input type="date" id="set-start" value="' +
+      esc(state.startDate || "") +
+      '" />' +
+      '<label>Units</label><select id="set-unit"><option value="lb"' +
+      (state.unit === "lb" ? " selected" : "") +
+      '>Pounds (lb)</option><option value="kg"' +
+      (state.unit === "kg" ? " selected" : "") +
+      ">Kilograms (kg)</option></select>" +
+      '<label><input type="checkbox" id="set-sound"' +
+      (state.sound ? " checked" : "") +
+      " /> Timer sounds</label>" +
+      '<button type="button" class="btn" data-action="export-json">Export backup</button> ' +
+      '<button type="button" class="btn" data-action="import-json">Import backup</button> ' +
+      '<button type="button" class="btn btn-ghost" data-action="reset-all" style="margin-top:12px;color:var(--danger)">Reset all data</button>' +
+      "</div>"
+    );
+  }
+
+  function renderTabs() {
+    const tabs = [
+      { id: "today", label: "Today" },
+      { id: "timer", label: "Timer" },
+      { id: "progress", label: "Progress" },
+      { id: "more", label: "More" },
+    ];
+    const bar = document.getElementById("tab-bar");
+    if (!state.startDate) {
+      bar.innerHTML = "";
+      bar.classList.add("hidden");
+      return;
+    }
+    bar.classList.remove("hidden");
+    bar.innerHTML = tabs
+      .map(
+        (t) =>
+          '<button type="button" data-action="tab" data-tab="' +
+          t.id +
+          '"' +
+          (state.tab === t.id ? ' class="active"' : "") +
+          ">" +
+          t.label +
+          "</button>"
+      )
+      .join("");
+  }
+
+  function render() {
+    const app = document.getElementById("app");
+    renderTabs();
+    if (!state.startDate) {
+      app.innerHTML = renderToday();
+      return;
+    }
+    let content = "";
+    if (state.tab === "today") content = renderToday();
+    else if (state.tab === "timer") content = renderTimerTab();
+    else if (state.tab === "progress") content = renderProgress();
+    else if (state.tab === "more") content = renderMore();
+    app.innerHTML = content;
+  }
+
+  function finishWorkout(ymd) {
+    const day = ensureDay(ymd);
+    day.completed = true;
+    day.celebrationShown = false;
+    Object.keys(day.items).forEach((id) => {
+      const item = day.items[id];
+      if (!item.sets || !item.sets.length) return;
+      const exId = id.startsWith("wed_") ? id.slice(4) : id;
+      if (WEIGHTED[exId] || exId === "pushups") commitExerciseLog(exId, item);
+    });
+    save();
+    render();
+  }
+
+  document.getElementById("app").addEventListener("click", (e) => {
+    const t = e.target.closest("[data-action]");
+    if (!t) return;
+    const action = t.dataset.action;
+    const day = t.dataset.day || localYMD();
+
+    if (action === "start-program") {
+      state.startDate = localYMD();
+      state.tab = "today";
+      Object.keys(WEIGHTED).forEach((k) => ensureMeta(k));
+      ensureMeta("pushups");
+      save();
+      render();
+      return;
+    }
+    if (action === "tab") {
+      state.tab = t.dataset.tab;
+      save();
+      render();
+      return;
+    }
+    if (action === "item-check") {
+      const item = getItem(t.dataset.day, t.dataset.id);
+      item.checked = !item.checked;
+      save();
+      render();
+      return;
+    }
+    if (action === "set-toggle") {
+      const item = getItem(state.viewDay || localYMD(), t.dataset.ex);
+      const idx = +t.dataset.idx;
+      item.sets[idx].done = !item.sets[idx].done;
+      save();
+      render();
+      return;
+    }
+    if (action === "set-weight") {
+      const item = getItem(state.viewDay || localYMD(), t.dataset.ex);
+      const idx = +t.dataset.idx;
+      const delta = +t.dataset.delta;
+      item.sets[idx].weight = Math.max(0, item.sets[idx].weight + delta);
+      const metaEx = t.dataset.meta || t.dataset.ex.replace(/^wed_/, "");
+      ensureMeta(metaEx).weight = item.sets[idx].weight;
+      save();
+      render();
+      return;
+    }
+    if (action === "set-reps") {
+      const item = getItem(state.viewDay || localYMD(), t.dataset.ex);
+      const idx = +t.dataset.idx;
+      item.sets[idx].reps = Math.max(0, item.sets[idx].reps + (+t.dataset.delta));
+      save();
+      render();
+      return;
+    }
+    if (action === "habit") {
+      const d = ensureDay(t.dataset.day);
+      d.habits[t.dataset.key] = !d.habits[t.dataset.key];
+      save();
+      render();
+      return;
+    }
+    if (action === "cardio-min") {
+      const item = getItem(t.dataset.day, t.dataset.id);
+      const d = ensureDay(t.dataset.day);
+      const delta = +t.dataset.delta;
+      item.minutes = Math.max(0, (item.minutes || 0) + delta);
+      d.easyCardioMin = Math.max(0, (d.easyCardioMin || 0) + delta);
+      save();
+      render();
+      return;
+    }
+    if (action === "finish-workout") {
+      finishWorkout(t.dataset.day);
+      return;
+    }
+    if (action === "mini-workout") {
+      const d = ensureDay(t.dataset.day);
+      d.miniWorkout = true;
+      d.completed = true;
+      save();
+      render();
+      return;
+    }
+    if (action === "skip-day") {
+      const d = ensureDay(t.dataset.day);
+      d.skipped = true;
+      save();
+      render();
+      return;
+    }
+    if (action === "catchup") {
+      state.viewDay = t.dataset.day;
+      state.tab = "today";
+      save();
+      render();
+      return;
+    }
+    if (action === "view-today") {
+      state.viewDay = null;
+      save();
+      render();
+      return;
+    }
+    if (action === "prog-accept") {
+      const ex = t.dataset.ex;
+      const w = state.progressionOffers[ex];
+      ensureMeta(ex).weight = w;
+      delete state.progressionOffers[ex];
+      save();
+      render();
+      return;
+    }
+    if (action === "prog-decline") {
+      delete state.progressionOffers[t.dataset.ex];
+      save();
+      render();
+      return;
+    }
+    if (action === "push-level") {
+      const item = getItem(t.dataset.day, "pushups");
+      item.level = +t.dataset.lvl;
+      ensureMeta("pushups").pushLevel = item.level;
+      save();
+      render();
+      return;
+    }
+    if (action === "wed-toggle") {
+      const d = ensureDay(t.dataset.day);
+      const id = t.dataset.id;
+      if (d.wedPicks.includes(id)) d.wedPicks = d.wedPicks.filter((x) => x !== id);
+      else if (d.wedPicks.length < 5) d.wedPicks.push(id);
+      save();
+      render();
+      return;
+    }
+    if (action === "timer-start-main") {
+      if (timerState.mode === "meditation") {
+        timerState.round = 1;
+        timerState.totalRounds = 1;
+        timerState.phase = "rest";
+        startCountdownThenRun(runTimerInterval);
+        return;
+      }
+      loadTimerForToday();
+      if (!timerState.mode) timerState.mode = "sprint";
+      timerState.round = 1;
+      timerState.phase = "work";
+      timerState.remaining = timerState.workSec || 20;
+      startCountdownThenRun(runTimerInterval);
+      return;
+    }
+    if (action === "timer-stop") {
+      stopTimer();
+      return;
+    }
+    if (action === "timer-sprint") {
+      state.tab = "timer";
+      const pd = programDayFor(localYMD()) || 1;
+      const phase = getPhase(pd);
+      timerState.mode = "sprint";
+      timerState.workSec = 20;
+      timerState.restSec = phase.sprintRest;
+      timerState.totalRounds = phase.sprintRounds;
+      save();
+      render();
+      return;
+    }
+    if (action === "timer-hiit") {
+      state.tab = "timer";
+      const pd = programDayFor(localYMD()) || 1;
+      const phase = getPhase(pd);
+      timerState.mode = "hiit";
+      timerState.workSec = phase.hiitHard;
+      timerState.restSec = phase.hiitEasy;
+      timerState.totalRounds = phase.hiitRounds;
+      save();
+      render();
+      return;
+    }
+    if (action === "timer-hold") {
+      state.tab = "timer";
+      timerState.mode = "hold";
+      timerState.totalRounds = 1;
+      timerState.round = 1;
+      timerState.phase = "work";
+      timerState.remaining = +t.dataset.sec || 20;
+      startCountdownThenRun(runTimerInterval);
+      return;
+    }
+    if (action === "timer-rest") {
+      state.tab = "timer";
+      timerState.mode = "rest";
+      timerState.totalRounds = 1;
+      timerState.round = 1;
+      timerState.phase = "rest";
+      timerState.remaining = +t.dataset.sec;
+      runTimerInterval();
+      render();
+      return;
+    }
+    if (action === "timer-meditation") {
+      state.tab = "timer";
+      timerState.mode = "meditation";
+      timerState.totalRounds = 1;
+      timerState.round = 1;
+      timerState.phase = "rest";
+      timerState.remaining = 15 * 60;
+      save();
+      render();
+      return;
+    }
+    if (action === "export-json") {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "what100-workout-backup.json";
+      a.click();
+      return;
+    }
+    if (action === "import-json") {
+      document.getElementById("import-file").click();
+      return;
+    }
+    if (action === "reset-all") {
+      if (confirm("Delete all workout data? This cannot be undone.")) {
+        state = defaultState();
+        save();
+        render();
+      }
+      return;
+    }
+  });
+
+  document.body.addEventListener("change", (e) => {
+    const t = e.target;
+    if (t.id === "set-start" && t.value) {
+      state.startDate = t.value;
+      save();
+      render();
+    }
+    if (t.id === "set-unit") {
+      state.unit = t.value;
+      save();
+      render();
+    }
+    if (t.id === "set-sound") {
+      state.sound = t.checked;
+      save();
+    }
+  });
+
+  document.getElementById("import-file").addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      try {
+        state = { ...defaultState(), ...JSON.parse(fr.result) };
+        save();
+        render();
+      } catch {
+        alert("Invalid backup file.");
+      }
+    };
+    fr.readAsText(f);
+    e.target.value = "";
+  });
+
+  document.getElementById("app").addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset.action === "checkin") {
+      const key = t.dataset.key;
+      if (!state.checkIns[key]) state.checkIns[key] = {};
+      state.checkIns[key][t.dataset.field] = t.value;
+      if (t.dataset.field === "weight" && t.value) {
+        state.bodyWeightLog.push({ date: localYMD(), value: t.value });
+      }
+      save();
+    }
+    if (t.dataset.action === "play-note") {
+      ensureDay(t.dataset.day).playNote = t.value;
+      save();
+    }
+  });
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+
+  render();
+})();
+  </script>
+</body>
+</html>

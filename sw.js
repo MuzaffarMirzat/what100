@@ -1,7 +1,8 @@
-const CACHE = "what100-v3";
+const CACHE = "what100-v4";
 const ASSETS = [
   "./",
   "./index.html",
+  "./workout.html",
   "./styles.css",
   "./app.js",
   "./manifest.webmanifest",

@@ -176,6 +176,10 @@
       <section class="screen">
         <h1 class="brand">what<span>100</span></h1>
         <p class="lede">One goal. One hundred days. Miss 5 days (without backfill) and it resets.</p>
+        <a class="app-menu" href="./workout.html">
+          <strong>60-day Workout</strong>
+          <span>Today’s plan, timers, progress →</span>
+        </a>
         ${resetNoticeHtml(resetTitles)}
         <form class="composer" id="new-goal-form">
           <input

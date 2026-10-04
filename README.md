@@ -1,49 +1,19 @@
 # what100
 
-A tiny phone web app for 100-day goal streaks.
+Phone web apps (no App Store) for daily tracking:
 
-- Add a goal anytime
-- Open it to see a 100-day calendar
-- Tap days to mark progress
-- Data stays in your phone’s browser storage
+- **Goals** (`index.html`) — 100-day calendars per goal
+- **Workout** (`workout.html`) — 60-day training plan with Today / Timer / Progress / More
 
-No App Store. Install it from GitHub Pages as a home-screen app.
+Data stays in your phone’s browser storage.
 
-## Deploy on GitHub Pages
+**Live:** https://muzaffarmirzat.github.io/what100/
 
-1. Create a new GitHub repo (e.g. `what100`).
-2. Push this project:
+## Use on your phone
 
-```bash
-git init
-git add .
-git commit -m "Add what100 PWA"
-git branch -M main
-git remote add origin https://github.com/YOUR_USER/what100.git
-git push -u origin main
-```
-
-3. On GitHub: **Settings → Pages**
-   - Source: **Deploy from a branch**
-   - Branch: `main` / `/ (root)`
-   - Save
-
-4. Open the site URL GitHub shows, e.g.  
-   `https://YOUR_USER.github.io/what100/`
-
-## Use it like an app on your phone
-
-### iPhone (Safari)
-
-1. Open the GitHub Pages URL in Safari.
-2. Tap **Share** → **Add to Home Screen**.
-3. Open **what100** from your home screen.
-
-### Android (Chrome)
-
-1. Open the GitHub Pages URL in Chrome.
-2. Tap the menu → **Install app** or **Add to Home screen**.
-3. Open **what100** from your home screen.
+1. Open the link in Safari (iPhone) or Chrome (Android).
+2. **Add to Home Screen** / **Install app**.
+3. From Goals, tap **60-day Workout** for the gym plan.
 
 ## Local preview
 
