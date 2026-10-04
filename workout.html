@@ -466,7 +466,7 @@
   </style>
 </head>
 <body>
-  <nav class="top-nav"><a href="./index.html">← Goals</a></nav>
+  <nav class="top-nav"><a href="./index.html">← Goals</a> <span class="muted" style="float:right;font-size:0.75rem">updated Oct 4</span></nav>
   <div id="app"></div>
   <nav class="tab-bar" id="tab-bar" aria-label="Main"></nav>
   <input type="file" id="import-file" accept="application/json" class="hidden" aria-hidden="true" />
@@ -1944,7 +1944,18 @@
   });
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(function () {});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    navigator.serviceWorker
+      .register("./sw.js?v=7")
+      .then(function (reg) {
+        reg.update();
+      })
+      .catch(function () {});
   }
 
   render();
