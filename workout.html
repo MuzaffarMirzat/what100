@@ -842,6 +842,8 @@
   }
 
   function startCountdownThenRun(fn) {
+    const savedPhase = timerState.phase;
+    const savedRemaining = timerState.remaining;
     let c = 3;
     timerState.phase = "countdown";
     timerState.remaining = c;
@@ -853,6 +855,8 @@
       if (c <= 0) {
         clearInterval(timerState.countdownId);
         timerState.countdownId = null;
+        timerState.phase = savedPhase;
+        timerState.remaining = savedRemaining;
         fn();
       } else beep();
       render();
@@ -901,6 +905,7 @@
     requestWakeLock();
     timerState.running = true;
     timerState.intervalId = setInterval(timerTick, 1000);
+    render();
   }
 
   function loadTimerForToday() {
@@ -1283,7 +1288,18 @@
     const pdY = programDayFor(yest);
     if (!pdY) return "";
     const day = state.days[yest];
-    if (day && (day.completed || day.skipped || day.miniWorkout)) return "";
+    if (day && day.skipped) {
+      return (
+        '<div class="card">' +
+        "<p>Yesterday (Day " +
+        pdY +
+        ') was skipped. <button type="button" class="btn btn-sm btn-ghost" data-action="undo-skip" data-day="' +
+        yest +
+        '">Undo skip</button></p>' +
+        "</div>"
+      );
+    }
+    if (day && (day.completed || day.miniWorkout)) return "";
     return (
       '<div class="card">' +
       "<p>Yesterday's session (Day " +
@@ -1398,7 +1414,7 @@
     } else if (dayRec.miniWorkout) {
       html += '<p class="muted">Today: 11-min backup completed.</p>';
     } else if (dayRec.skipped) {
-      html += '<p class="muted">This day was skipped — program continues.</p>';
+      html += '<p class="muted">This day was skipped — program continues. <button type="button" class="btn btn-sm btn-ghost" data-action="undo-skip" data-day="' + ymd + '">Undo skip</button></p>';
     }
     return html;
   }
@@ -1656,6 +1672,16 @@
     render();
   }
 
+  document.getElementById("tab-bar").addEventListener("click", (e) => {
+    const t = e.target.closest("[data-action]");
+    if (!t) return;
+    if (t.dataset.action === "tab") {
+      state.tab = t.dataset.tab;
+      save();
+      render();
+    }
+  });
+
   document.getElementById("app").addEventListener("click", (e) => {
     const t = e.target.closest("[data-action]");
     if (!t) return;
@@ -1744,6 +1770,13 @@
     if (action === "skip-day") {
       const d = ensureDay(t.dataset.day);
       d.skipped = true;
+      save();
+      render();
+      return;
+    }
+    if (action === "undo-skip") {
+      const d = ensureDay(t.dataset.day);
+      d.skipped = false;
       save();
       render();
       return;
