@@ -541,19 +541,6 @@
 
   let state = loadState();
 
-  // Force Day 1 to tomorrow (2026-10-05) if they opened/started early.
-  (function applyTomorrowStart() {
-    const FLAG = "what100.workout.startTomorrow.v1";
-    if (localStorage.getItem(FLAG) === "1") return;
-    const tomorrow = "2026-10-05";
-    if (state.startDate && state.startDate <= "2026-10-04") {
-      state.startDate = tomorrow;
-      state.viewDay = null;
-      save();
-    }
-    localStorage.setItem(FLAG, "1");
-  })();
-
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
@@ -1366,7 +1353,7 @@
         '<div class="start-hero">' +
         '<div class="start-blob" aria-hidden="true"></div>' +
         "<h1>Let’s go — 60 days</h1>" +
-        "<p>Strength, cardio, and recovery that gets a little better each week. Day 1 is <strong>tomorrow (Oct 5)</strong>. You’ve got this.</p>" +
+        "<p>Strength, cardio, and recovery that gets a little better each week. Day 1 starts <strong>today</strong>. You’ve got this.</p>" +
         '<button type="button" class="btn btn-primary btn-huge" data-action="start-program">Start my 60 days</button>' +
         "</div>"
       );
@@ -1689,7 +1676,7 @@
     const day = t.dataset.day || localYMD();
 
     if (action === "start-program") {
-      state.startDate = "2026-10-05";
+      state.startDate = localYMD();
       state.tab = "today";
       state.viewDay = null;
       Object.keys(WEIGHTED).forEach((k) => ensureMeta(k));
